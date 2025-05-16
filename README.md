@@ -1,10 +1,10 @@
-# Gree AC egyedi komponens a Home Assistant-hoz
+# Gree Amber AC egyedi komponens a Home Assistant-hoz
 Felelősség kizárása
 Mivel lusta vagyok, ez a README.md főként ChatGPT segítségével készült.
 Ez az integráció lényegében az eredeti, hivatalos Gree integráció módosított változata, amely letiltja a légkondicionáló egység hangos visszajelző sípolásait, köszönhetően a greeclimate könyvtár egy javított verziójának, amelyet @namezys készített.
 
 Jellemzők
-Közvetlenül irányíthatod Gree légkondicionálóidat a Home Assistantból.
+Közvetlenül irányíthatod Gree Amber légkondicionálóidat a Home Assistantból.
 Élvezd a csendesebb működést a sípolások kikapcsolásával.
 Egyszerű telepítés a HACS segítségével.
 
@@ -12,7 +12,7 @@ Különbségek a hivatalos integrációhoz képest
 Ez a saját integráció funkcióiban alapvetően megegyezik a Home Assistant által biztosított hivatalos Gree integrációval. Azonban tartalmaz egy javított greeclimate könyvtárat, amely letiltja az egység sípolásait, így nyugodtabb környezetet biztosít.
 
 Telepítési útmutató
-A Gree AC egyedi komponens könnyen telepíthető a Home Assistant Community Store (HACS) segítségével:
+A Gree Amber AC egyedi komponens könnyen telepíthető a Home Assistant Community Store (HACS) segítségével:
 
 Előfeltételek
 Mielőtt elkezdenéd, győződj meg róla, hogy:
@@ -30,7 +30,7 @@ Kattints az "Integrációk" fülre.
 
 Kattints a jobb felső sarokban lévő három pontra, majd válaszd a "Custom Repositories" (Egyedi tárolók) menüpontot.
 
-A "Repository" mezőbe írd be a következő URL-t: https://github.com/ov1d1u/gree_ac.
+A "Repository" mezőbe írd be a következő URL-t: https://github.com/csilee/gree_amber_ac.
 
 A "Category" legördülő menüből válaszd az "Integration" kategóriát.
 
@@ -38,9 +38,9 @@ Kattints az "Add" (Hozzáadás) gombra.
 
 Telepítsd az integrációt:
 
-A HACS integrációk keresőjében keresd meg a "Gree AC" kifejezést.
+A HACS integrációk keresőjében keresd meg a "Gree AmberAC" kifejezést.
 
-Kattints a találatok között a "Gree AC"-re.
+Kattints a találatok között a "Gree Amber AC"-re.
 
 Kattints a "Install" (Telepítés) gombra.
 
@@ -52,9 +52,9 @@ Konfiguráld az integrációt:
 
 Az újraindítás után menj a "Configuration" > "Devices & Services" menüpontra.
 
-Kattints az "Add Integration" (Integráció hozzáadása) gombra, majd keresd meg a "Gree AC"-t.
+Kattints az "Add Integration" (Integráció hozzáadása) gombra, majd keresd meg a "Gree Amber AC"-t.
 
-Kövesd a konfigurációs lépéseket, hogy beállítsd a Gree légkondicionálóidat.
+Kövesd a konfigurációs lépéseket, hogy beállítsd a Gree Amber légkondicionálóidat.
 
 Köszönetnyilvánítás
 Ez az egyedi komponens tartalmazza a greeclimate könyvtár javított verzióját, amelyet @namezys készített, és amely letiltja a légkondicionáló sípolásait.
