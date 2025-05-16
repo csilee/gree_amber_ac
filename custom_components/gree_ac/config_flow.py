@@ -1,4 +1,4 @@
-"""Config flow for Gree."""
+"""Config flow for Amber Gree."""
 
 from .greeclimate.discovery import Discovery
 
@@ -19,4 +19,4 @@ async def _async_has_devices(hass: HomeAssistant) -> bool:
     return len(devices) > 0
 
 
-config_entry_flow.register_discovery_flow(DOMAIN, "Gree Climate", _async_has_devices)
+config_entry_flow.register_discovery_flow(DOMAIN, "Gree Amber Climate", _async_has_devices)
