@@ -1,4 +1,4 @@
-"""The Gree Climate integration."""
+"""The Gree AmberClimate integration."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GreeConfigEntry) -> bool
         bcast_addr = list(await async_get_ipv4_broadcast_addresses(hass))
         await gree_discovery.discovery.scan(0, bcast_ifaces=bcast_addr)
 
-    _LOGGER.debug("Scanning network for Gree devices")
+    _LOGGER.debug("Gree Amber eszközök keresése a hálózaton")
     await _async_scan_update()
 
     entry.async_on_unload(
