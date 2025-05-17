@@ -1,4 +1,4 @@
-"""Support for interface with a Gree climate systems."""
+"""Support for interface with a Gree Amber climate systems."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from .greeclimate.device import (
     TEMP_MAX_F,
     TEMP_MIN,
     TEMP_MIN_F,
+    Quiet,
     FanSpeed,
     HorizontalSwing,
     Mode,
@@ -28,6 +29,9 @@ from homeassistant.components.climate import (
     PRESET_ECO,
     PRESET_NONE,
     PRESET_SLEEP,
+    QUIET_OFF,
+    QUIET_AUTO,
+    QUIET_ON,
     SWING_BOTH,
     SWING_HORIZONTAL,
     SWING_OFF,
@@ -81,6 +85,8 @@ FAN_MODES_REVERSE = {v: k for k, v in FAN_MODES.items()}
 
 SWING_MODES = [SWING_OFF, SWING_VERTICAL, SWING_HORIZONTAL, SWING_BOTH]
 
+QUIET_MODES = [QUIET_OFF, QUIET_AUTO, QUIET_ON]
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -111,6 +117,7 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
         | ClimateEntityFeature.FAN_MODE
         | ClimateEntityFeature.PRESET_MODE
         | ClimateEntityFeature.SWING_MODE
+        | ClimateEntityFeature.QUIET_MODE
         | ClimateEntityFeature.TURN_OFF
         | ClimateEntityFeature.TURN_ON
     )
@@ -119,13 +126,14 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
     _attr_preset_modes = PRESET_MODES
     _attr_fan_modes = [*FAN_MODES_REVERSE]
     _attr_swing_modes = SWING_MODES
+    _attr_quiet_modes = QUIET_MODES
     _attr_name = None
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_min_temp = TEMP_MIN
     _attr_max_temp = TEMP_MAX
 
     def __init__(self, coordinator: DeviceDataUpdateCoordinator) -> None:
-        """Initialize the Gree device."""
+        """Initialize the Gree Amber device."""
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.device.device_info.mac
 
@@ -142,14 +150,14 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature."""
         if ATTR_TEMPERATURE not in kwargs:
-            raise ValueError(f"Missing parameter {ATTR_TEMPERATURE}")
+            raise ValueError(f"Hiányzó paraméter {ATTR_TEMPERATURE}")
 
         if hvac_mode := kwargs.get(ATTR_HVAC_MODE):
             await self.async_set_hvac_mode(hvac_mode)
 
         temperature = kwargs[ATTR_TEMPERATURE]
         _LOGGER.debug(
-            "Setting temperature to %d for %s",
+            "Hőmérséklet %d állítva a %s eszközön",
             temperature,
             self._attr_name,
         )
@@ -169,10 +177,10 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set new target hvac mode."""
         if hvac_mode not in self.hvac_modes:
-            raise ValueError(f"Invalid hvac_mode: {hvac_mode}")
+            raise ValueError(f"Ismeretlen HVAC mód: {hvac_mode}")
 
         _LOGGER.debug(
-            "Setting HVAC mode to %s for device %s",
+            "HVAC mód %s állítva a %s eszközön",
             hvac_mode,
             self._attr_name,
         )
@@ -192,7 +200,7 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
 
     async def async_turn_on(self) -> None:
         """Turn on the device."""
-        _LOGGER.debug("Turning on HVAC for device %s", self._attr_name)
+        _LOGGER.debug("HVAC kekapcsolva a %s eszközön", self._attr_name)
 
         self.coordinator.device.power = True
         await self.coordinator.push_state_update()
@@ -200,7 +208,7 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
 
     async def async_turn_off(self) -> None:
         """Turn off the device."""
-        _LOGGER.debug("Turning off HVAC for device %s", self._attr_name)
+        _LOGGER.debug("HVAC kikapcsolva a %s eszközön", self._attr_name)
 
         self.coordinator.device.power = False
         await self.coordinator.push_state_update()
@@ -222,10 +230,10 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
         if preset_mode not in PRESET_MODES:
-            raise ValueError(f"Invalid preset mode: {preset_mode}")
+            raise ValueError(f"Ismeretlen preset mode: {preset_mode}")
 
         _LOGGER.debug(
-            "Setting preset mode to %s for device %s",
+            "Preset mód %s beállítva a %s eszközön",
             preset_mode,
             self._attr_name,
         )
@@ -256,9 +264,25 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         """Set new target fan mode."""
         if fan_mode not in FAN_MODES_REVERSE:
-            raise ValueError(f"Invalid fan mode: {fan_mode}")
+            raise ValueError(f"Ismeretlen ventillátormód: {fan_mode}")
 
         self.coordinator.device.fan_speed = FAN_MODES_REVERSE.get(fan_mode)
+        await self.coordinator.push_state_update()
+        self.async_write_ha_state()
+
+
+    @property
+    def quiet_mode(self) -> str | None:
+        """Return the current quiet mode for the device."""
+        quiet = self.coordinator.device.quiet
+        return QUIET_MODES.get(quiet)
+
+    async def async_set_quiet_mode(self, quiet_mode: str) -> None:
+        """Set new target fan mode."""
+        if quiet_mode not in QUIET_MODES:
+            raise ValueError(f"Ismeretlen csendesmód: {quiet_mode}")
+
+        self.coordinator.device.quiet = QUIET_MODES.get(quiet_mode)
         await self.coordinator.push_state_update()
         self.async_write_ha_state()
 
@@ -279,10 +303,10 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
     async def async_set_swing_mode(self, swing_mode: str) -> None:
         """Set new target swing operation."""
         if swing_mode not in SWING_MODES:
-            raise ValueError(f"Invalid swing mode: {swing_mode}")
+            raise ValueError(f"Ismeretlen lenyezőmód: {swing_mode}")
 
         _LOGGER.debug(
-            "Setting swing mode to %s for device %s",
+            "Legyezőmód %s állítva az %s eszközön",
             swing_mode,
             self._attr_name,
         )
@@ -304,7 +328,7 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
             units == TemperatureUnits.C
             and self._attr_temperature_unit != UnitOfTemperature.CELSIUS
         ):
-            _LOGGER.debug("Setting temperature unit to Celsius")
+            _LOGGER.debug("Hőmérséklet mértékegység celsiusra állítva")
             self._attr_temperature_unit = UnitOfTemperature.CELSIUS
             self._attr_min_temp = TEMP_MIN
             self._attr_max_temp = TEMP_MAX
@@ -312,7 +336,7 @@ class GreeClimateEntity(GreeEntity, ClimateEntity):
             units == TemperatureUnits.F
             and self._attr_temperature_unit != UnitOfTemperature.FAHRENHEIT
         ):
-            _LOGGER.debug("Setting temperature unit to Fahrenheit")
+            _LOGGER.debug("Hőmérséklet mértékegység fahrenheitre állítva")
             self._attr_temperature_unit = UnitOfTemperature.FAHRENHEIT
             self._attr_min_temp = TEMP_MIN_F
             self._attr_max_temp = TEMP_MAX_F
