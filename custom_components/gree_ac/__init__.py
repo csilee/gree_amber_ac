@@ -1,4 +1,4 @@
-"""The Gree AmberClimate integration."""
+"""The Gree Amber Climate integration."""
 
 from __future__ import annotations
 
