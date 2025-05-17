@@ -1,4 +1,4 @@
-"""Helper and wrapper classes for Gree module."""
+"""Helper and wrapper classes for Gree Amber module."""
 
 from __future__ import annotations
 
@@ -60,16 +60,16 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             always_update=False,
         )
         self.device = device
-        print(f"Device add handler: {self.device}")
+        print(f"Eszköz kezelőhöz adva: {self.device}")
         self.device.add_handler(Response.RESULT, self.device_state_updated)
-        print(f"Device add handler: {self.device}")
+        print(f"Eszköz kezelőhöz adva: {self.device}")
 
         self._error_count: int = 0
         self._last_response_time: datetime = utcnow()
         self._last_error_time: datetime | None = None
 
         _LOGGER.debug(
-            "Gree device %s at %s:%i initialized",
+            "Gree Amber eszköz: %s ekkor %s:%i beállítva",
             self.device.device_info.name,
             self.device.device_info.ip,
             self.device.device_info.port,
@@ -77,7 +77,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def device_state_updated(self, *args: Any) -> None:
         """Handle device state updates."""
-        _LOGGER.debug("Device state updated: %s", json_dumps(args))
+        _LOGGER.debug("Eszköz státusza megváltozott: %s", json_dumps(args))
         self._error_count = 0
         self._last_response_time = utcnow()
         self.async_set_updated_data(self.device.raw_properties)
@@ -85,13 +85,13 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_data(self) -> dict[str, Any]:
         """Update the state of the device."""
         _LOGGER.debug(
-            "Updating device state: %s, error count: %d", self.name, self._error_count
+            "Eszköz státusza frissítve: %s, hibaszámláló: %d", self.name, self._error_count
         )
         try:
             await self.device.update_state()
         except DeviceNotBoundError as error:
             raise UpdateFailed(
-                f"Device {self.name} is unavailable, device is not bound."
+                f"{self.name} eszköz elérhetettlen, az eszköz nincs jelen."
             ) from error
         except DeviceTimeoutError as error:
             self._error_count += 1
@@ -99,10 +99,10 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Under normal conditions GREE units timeout every once in a while
             if self.last_update_success and self._error_count >= MAX_ERRORS:
                 _LOGGER.warning(
-                    "Device %s is unavailable: %s", self.name, self.device.device_info
+                    "Eszköz %s elérhetettlen: %s", self.name, self.device.device_info
                 )
                 raise UpdateFailed(
-                    f"Device {self.name} is unavailable, could not send update request"
+                    f"{self.name} eszköz elérhetettlen, nem sikerült elküldeni a frissítési kérelmet"
                 ) from error
         else:
             # raise update failed if time for more than MAX_ERRORS has passed since last update
@@ -118,7 +118,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     self._error_count += 1
 
                 _LOGGER.warning(
-                    "Device %s took an unusually long time to respond, %s seconds",
+                    "A(z) %s eszköz szokatlanul sokáig várt a válaszadásra, %s másodperc",
                     self.name,
                     elapsed_success,
                 )
@@ -126,7 +126,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._error_count = 0
             if self.last_update_success and self._error_count >= MAX_ERRORS:
                 raise UpdateFailed(
-                    f"Device {self.name} is unresponsive for too long and now unavailable"
+                    f"A(z) {self.name} eszköz túl sokáig nem válaszol, és most nem érhető el."
                 )
 
         self._last_response_time = utcnow()
@@ -138,7 +138,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return await self.device.push_state_update()
         except DeviceTimeoutError:
             _LOGGER.warning(
-                "Timeout send state update to: %s (%s)",
+                "Időtúllépés az állapotfrissítés küldésekor ide: %s (%s)",
                 self.name,
                 self.device.device_info,
             )
@@ -163,23 +163,23 @@ class DiscoveryService(Listener):
         try:
             await device.bind()
         except DeviceNotBoundError:
-            _LOGGER.error("Unable to bind to gree device: %s", device_info)
+            _LOGGER.error("Nem sikerült csatlakozni a Gree Amber eszközhöz: %s", device_info)
         except DeviceTimeoutError:
-            _LOGGER.error("Timeout trying to bind to gree device: %s", device_info)
+            _LOGGER.error("Időtúllépés a Gree Amber eszközhöz való csatlakozás során: %s", device_info)
 
         _LOGGER.debug(
-            "Adding Gree device %s at %s:%i",
+            "Gree Amber eszköz hozzáadása %s ekkor %s:%i",
             device.device_info.name,
             device.device_info.ip,
             device.device_info.port,
         )
         print(
-            f"Adding Gree device {device.device_info.name} at {device.device_info.ip}:{device.device_info.port}"
+            f"Gree Amber eszköz hozzáadása {device.device_info.name} ekkor {device.device_info.ip}:{device.device_info.port}"
         )
         coordo = DeviceDataUpdateCoordinator(self.hass, self.entry, device)
-        print(f"Processing device: {device}")
+        print(f"Feldolgozó eszköz: {device}")
         self.entry.runtime_data.coordinators.append(coordo)
-        print(f"Coordinators: {self.entry.runtime_data.coordinators}")
+        print(f"Koordinátorok: {self.entry.runtime_data.coordinators}")
         await coordo.async_refresh()
 
         async_dispatcher_send(self.hass, DISPATCH_DEVICE_DISCOVERED, coordo)
