@@ -1,4 +1,4 @@
-"""Support for interface with a Gree climate systems."""
+"""Gree Amber klímarendszerekkel való interfész támogatása."""
 
 from __future__ import annotations
 
@@ -35,11 +35,6 @@ def _set_light(device: Device, value: bool) -> None:
     device.light = value
 
 
-def _set_quiet(device: Device, value: bool) -> None:
-    """Typed helper to set device quiet property."""
-    device.quiet = value
-
-
 def _set_fresh_air(device: Device, value: bool) -> None:
     """Typed helper to set device fresh_air property."""
     device.fresh_air = value
@@ -57,19 +52,13 @@ def _set_anion(device: Device, value: bool) -> None:
 
 GREE_SWITCHES: tuple[GreeSwitchEntityDescription, ...] = (
     GreeSwitchEntityDescription(
-        key="Panel Light",
+        key="Panel LED",
         translation_key="light",
         get_value_fn=lambda d: d.light,
         set_value_fn=_set_light,
     ),
     GreeSwitchEntityDescription(
-        key="Quiet",
-        translation_key="quiet",
-        get_value_fn=lambda d: d.quiet,
-        set_value_fn=_set_quiet,
-    ),
-    GreeSwitchEntityDescription(
-        key="Fresh Air",
+        key="Légfrissítő",
         translation_key="fresh_air",
         get_value_fn=lambda d: d.fresh_air,
         set_value_fn=_set_fresh_air,
@@ -81,7 +70,7 @@ GREE_SWITCHES: tuple[GreeSwitchEntityDescription, ...] = (
         set_value_fn=_set_xfan,
     ),
     GreeSwitchEntityDescription(
-        key="Health mode",
+        key="Egészségesebb mód",
         translation_key="health_mode",
         get_value_fn=lambda d: d.anion,
         set_value_fn=_set_anion,
