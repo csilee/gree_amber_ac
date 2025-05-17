@@ -1,4 +1,4 @@
-"""Entity object for shared properties of Gree entities."""
+"""Gree Amber entitások megosztott tulajdonságainak entitásobjektumai."""
 
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -8,14 +8,14 @@ from .coordinator import DeviceDataUpdateCoordinator
 
 
 class GreeEntity(CoordinatorEntity[DeviceDataUpdateCoordinator]):
-    """Generic Gree entity (base class)."""
+    """Alap Gree Amber entitás (base class)."""
 
     _attr_has_entity_name = True
 
     def __init__(
         self, coordinator: DeviceDataUpdateCoordinator, desc: str | None = None
     ) -> None:
-        """Initialize the entity."""
+        """Inicializálja az entitást."""
         super().__init__(coordinator)
         name = coordinator.device.device_info.name
         mac = coordinator.device.device_info.mac
