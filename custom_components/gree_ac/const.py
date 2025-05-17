@@ -2,7 +2,7 @@
 
 DISCOVERY_SCAN_INTERVAL = 300
 DISCOVERY_TIMEOUT = 8
-DISPATCH_DEVICE_DISCOVERED = "gree_ac_device_discovered"
+DISPATCH_DEVICE_DISCOVERED = "gree_amber_ac_device_discovered"
 
 DOMAIN = "gree_amber_ac"
 
