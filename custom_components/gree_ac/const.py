@@ -1,4 +1,4 @@
-"""Constants for the Gree Climate integration."""
+"""Constants for the Gree Amber Climate integration."""
 
 DISCOVERY_SCAN_INTERVAL = 300
 DISCOVERY_TIMEOUT = 8
