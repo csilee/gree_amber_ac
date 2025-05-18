@@ -7,7 +7,7 @@ from .const import DOMAIN
 from .coordinator import DeviceDataUpdateCoordinator
 
 
-class GreeEntity(CoordinatorEntity[DeviceDataUpdateCoordinator]):
+class GreeAmberEntity(CoordinatorEntity[DeviceDataUpdateCoordinator]):
     """Alap Gree Amber entitás (base class)."""
 
     _attr_has_entity_name = True
