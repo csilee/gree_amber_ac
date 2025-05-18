@@ -37,12 +37,12 @@ class CipherV1(CipherBase):
         return s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
 
     def encrypt(self, data) -> Tuple[str, Union[str, None]]:
-        _logger.debug("Encrypting data: %s", data)
+        _logger.debug("Adatok titkosítása: %s", data)
         cipher = self.__create_cipher()
         padded = self.__pad(json.dumps(data)).encode()
         encrypted = cipher.encrypt(padded)
         encoded = base64.b64encode(encrypted).decode()
-        _logger.debug("Encrypted data: %s", encoded)
+        _logger.debug("Titkosított adatok: %s", encoded)
         return encoded, None
 
     def decrypt(self, data) -> dict:
@@ -51,7 +51,7 @@ class CipherV1(CipherBase):
         decoded = base64.b64decode(data)
         decrypted = cipher.decrypt(decoded).decode()
         t = decrypted.replace(decrypted[decrypted.rindex('}') + 1:], '')
-        _logger.debug("Decrypted data: %s", t)
+        _logger.debug("Dekódolt adatok: %s", t)
         return json.loads(t)
 
 
@@ -68,21 +68,21 @@ class CipherV2(CipherBase):
         return cipher
 
     def encrypt(self, data) -> Tuple[str, str]:
-        _logger.debug("Encrypting data: %s", data)
+        _logger.debug("Adatok titkosítása: %s", data)
         cipher = self.__create_cipher()
         encrypted, tag = cipher.encrypt_and_digest(json.dumps(data).encode())
         encoded = base64.b64encode(encrypted).decode()
         tag = base64.b64encode(tag).decode()
-        _logger.debug("Encrypted data: %s", encoded)
-        _logger.debug("Cipher digest: %s", tag)
+        _logger.debug("Titkosított adatok: %s", encoded)
+        _logger.debug("Rejtjelzett kivonat: %s", tag)
         return encoded, tag
 
     def decrypt(self, data) -> dict:
-        _logger.info("Decrypting data: %s", data)
+        _logger.info("Adatok visszafejtése: %s", data)
         cipher = self.__create_cipher()
         decoded = base64.b64decode(data)
         decrypted = cipher.decrypt(decoded).decode()
         t = decrypted.replace(decrypted[decrypted.rindex('}') + 1:], '')
-        _logger.debug("Decrypted data: %s", t)
+        _logger.debug("Dekódolt adatok: %s", t)
         return json.loads(t)
 
