@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from .greeclimate.device import (
+from .greeamberclimate.device import (
     TEMP_MAX,
     TEMP_MAX_F,
     TEMP_MIN,
@@ -51,8 +51,8 @@ from .const import (
     FAN_MEDIUM_LOW,
     TARGET_TEMPERATURE_STEP,
 )
-from .coordinator import DeviceDataUpdateCoordinator, GreeConfigEntry
-from .entity import GreeEntity
+from .coordinator import DeviceDataUpdateCoordinator, GreeAmberConfigEntry
+from .entity import GreeAmberEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ HVAC_MODES_REVERSE = {v: k for k, v in HVAC_MODES.items()}
 
 PRESET_MODES = [
     PRESET_ECO,  # Power saving mode
-    PRESET_AWAY,  # Steady heat, or 8C mode on gree units
+    PRESET_AWAY,  # Steady heat, or 8C mode on gree amber units
     PRESET_BOOST,  # Turbo mode
     PRESET_NONE,  # Default operating mode
     PRESET_SLEEP,  # Sleep mode
@@ -90,15 +90,15 @@ QUIET_MODES = [QUIET_OFF, QUIET_AUTO, QUIET_ON]
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: GreeConfigEntry,
+    entry: GreeAmberConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the Gree HVAC device from a config entry."""
+    """Set up the Gree Amber HVAC device from a config entry."""
 
     @callback
     def init_device(coordinator: DeviceDataUpdateCoordinator) -> None:
         """Register the device."""
-        async_add_entities([GreeClimateEntity(coordinator)])
+        async_add_entities([GreeAmberClimateEntity(coordinator)])
 
     for coordinator in entry.runtime_data.coordinators:
         init_device(coordinator)
@@ -108,8 +108,8 @@ async def async_setup_entry(
     )
 
 
-class GreeClimateEntity(GreeEntity, ClimateEntity):
-    """Representation of a Gree HVAC device."""
+class GreeAmberClimateEntity(GreeAmberEntity, ClimateEntity):
+    """Representation of a Gree Amber HVAC device."""
 
     _attr_precision = PRECISION_WHOLE
     _attr_supported_features = (
