@@ -1,6 +1,6 @@
-"""Config flow for Amber Gree."""
+"""Config flow for Gree Amber."""
 
-from .greeclimate.discovery import Discovery
+from .greeamberclimate.discovery import Discovery
 
 from homeassistant.components.network import async_get_ipv4_broadcast_addresses
 from homeassistant.core import HomeAssistant
@@ -11,9 +11,9 @@ from .const import DISCOVERY_TIMEOUT, DOMAIN
 
 async def _async_has_devices(hass: HomeAssistant) -> bool:
     """Return if there are devices that can be discovered."""
-    gree_discovery = Discovery(DISCOVERY_TIMEOUT)
+    greeamber_discovery = Discovery(DISCOVERY_TIMEOUT)
     bcast_addr = list(await async_get_ipv4_broadcast_addresses(hass))
-    devices = await gree_discovery.scan(
+    devices = await greeamber_discovery.scan(
         wait_for=DISCOVERY_TIMEOUT, bcast_ifaces=bcast_addr
     )
     return len(devices) > 0
