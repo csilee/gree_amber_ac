@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 import logging
 from typing import Any
 
-from .greeclimate.device import Device, DeviceInfo
-from .greeclimate.discovery import Discovery, Listener
-from .greeclimate.exceptions import DeviceNotBoundError, DeviceTimeoutError
-from .greeclimate.network import Response
+from .greeamberclimate.device import Device, DeviceInfo
+from .greeamberclimate.discovery import Discovery, Listener
+from .greeamberclimate.exceptions import DeviceNotBoundError, DeviceTimeoutError
+from .greeamberclimate.network import Response
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -31,12 +31,12 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-type GreeConfigEntry = ConfigEntry[GreeRuntimeData]
+type GreeAmberConfigEntry = ConfigEntry[GreeAmberRuntimeData]
 
 
 @dataclass
-class GreeRuntimeData:
-    """RUntime data for Gree Climate integration."""
+class GreeAmberRuntimeData:
+    """RUntime data for Gree Amber Climate integration."""
 
     discovery_service: DiscoveryService
     coordinators: list[DeviceDataUpdateCoordinator]
@@ -45,10 +45,10 @@ class GreeRuntimeData:
 class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Manages polling for state changes from the device."""
 
-    config_entry: GreeConfigEntry
+    config_entry: GreeAmberConfigEntry
 
     def __init__(
-        self, hass: HomeAssistant, config_entry: GreeConfigEntry, device: Device
+        self, hass: HomeAssistant, config_entry: GreeAmberConfigEntry, device: Device
     ) -> None:
         """Initialize the data update coordinator."""
         super().__init__(
@@ -96,7 +96,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except DeviceTimeoutError as error:
             self._error_count += 1
 
-            # Under normal conditions GREE units timeout every once in a while
+            # Under normal conditions GREE AMBER units timeout every once in a while
             if self.last_update_success and self._error_count >= MAX_ERRORS:
                 _LOGGER.warning(
                     "Eszköz %s elérhetettlen: %s", self.name, self.device.device_info
@@ -145,9 +145,9 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
 
 class DiscoveryService(Listener):
-    """Discovery event handler for gree devices."""
+    """Discovery event handler for gree amber devices."""
 
-    def __init__(self, hass: HomeAssistant, entry: GreeConfigEntry) -> None:
+    def __init__(self, hass: HomeAssistant, entry: GreeAmberConfigEntry) -> None:
         """Initialize discovery service."""
         super().__init__()
         self.hass = hass
