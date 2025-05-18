@@ -6,10 +6,10 @@ from asyncio import Task
 from asyncio.events import AbstractEventLoop
 from ipaddress import IPv4Address
 
-from greeclimate.cipher import CipherV1
-from greeclimate.device import DeviceInfo
-from greeclimate.network import BroadcastListenerProtocol, IPAddr
-from greeclimate.taskable import Taskable
+from greeamberclimate.cipher import CipherV1
+from greeamberclimate.device import DeviceInfo
+from greeamberclimate.network import BroadcastListenerProtocol, IPAddr
+from greeamberclimate.taskable import Taskable
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,10 +25,10 @@ class Listener:
 
 
 class Discovery(BroadcastListenerProtocol, Listener, Taskable):
-    """Interact with gree devices on the network
+    """Interact with gree amber devices on the network
 
-    The `GreeClimate` class provides basic services for discovery and
-    interaction with gree device on the network.
+    The `GreeAmberClimate` class provides basic services for discovery and
+    interaction with gree amber device on the network.
     """
 
     def __init__(
@@ -111,7 +111,7 @@ class Discovery(BroadcastListenerProtocol, Listener, Taskable):
 
         self._device_infos.append(device_info)
 
-        _LOGGER.info("Gree eszköz (%s) található", str(device_info))
+        _LOGGER.info("Gree Amber eszköz (%s) található", str(device_info))
 
         tasks = [l.device_found(device_info) for l in self._listeners]
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -138,7 +138,7 @@ class Discovery(BroadcastListenerProtocol, Listener, Taskable):
     # Discovery
     async def scan(self, wait_for: int = 0, bcast_ifaces: list[IPv4Address] | None = None) -> list[DeviceInfo]:
         """Sends a discovery broadcast packet on each network interface to
-            locate Gree units on the network
+            locate Gree Amber units on the network
 
         Args:
             wait_for (int): Optionally wait this many seconds for discovery
@@ -148,7 +148,7 @@ class Discovery(BroadcastListenerProtocol, Listener, Taskable):
         Returns:
             List[DeviceInfo]: List of devices found during this scan
         """
-        _LOGGER.info("Gree eszközök keresése ...")
+        _LOGGER.info("Gree Amber eszközök keresése ...")
 
         await self.search_devices(bcast_ifaces)
         if wait_for:
