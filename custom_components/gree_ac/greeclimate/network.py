@@ -76,14 +76,14 @@ class DeviceProtocolBase2(asyncio.DatagramProtocol):
     def device_key(self) -> str:
         """Gets the encryption key used for device data."""
         if self._cipher is None:
-            raise ValueError("Cipher object not set")
+            raise ValueError("Rejtjelobjektum nincs beállítva")
         return self._cipher.key
 
     @device_key.setter
     def device_key(self, value: str):
         """Sets the encryption key used for device data."""
         if self._cipher is None:
-            raise ValueError("Cipher object not set")
+            raise ValueError("Rejtjelobjektum nincs beállítva")
         self._cipher.key = value
 
     def close(self) -> None:
@@ -107,12 +107,12 @@ class DeviceProtocolBase2(asyncio.DatagramProtocol):
 
         # In this case the connection was closed unexpectedly
         if exc is not None:
-            _LOGGER.exception("Connection was closed unexpectedly", exc_info=exc)
+            _LOGGER.exception("A kapcsolat váratlanul megszakadt", exc_info=exc)
             raise exc
 
     def error_received(self, exc: Exception) -> None:
         """Handle error while sending/receiving datagrams."""
-        _LOGGER.exception("Connection reported an exception", exc_info=exc)
+        _LOGGER.exception("A kapcsolat kivételt jelzett", exc_info=exc)
 
     def pause_writing(self) -> None:
         """Stop writing additional data to the transport."""
@@ -134,7 +134,7 @@ class DeviceProtocolBase2(asyncio.DatagramProtocol):
         if obj.get("pack"):
             obj["pack"] = self._cipher.decrypt(obj["pack"])
 
-        _LOGGER.debug("Received packet from %s:\n<- %s", addr[0], json.dumps(obj))
+        _LOGGER.debug("Csomag érkezett innen: %s:\n<- %s", addr[0], json.dumps(obj))
         self.packet_received(obj, addr)
 
     async def send(
@@ -146,13 +146,13 @@ class DeviceProtocolBase2(asyncio.DatagramProtocol):
             addr (object): (Optional) Address to send the message
             cipher (object): (Optional) Initial cipher to use for SCANNING and BINDING
         """
-        _LOGGER.debug("Sending packet:\n-> %s", json.dumps(obj))
+        _LOGGER.debug("Csomag küldése:\n-> %s", json.dumps(obj))
 
         if obj.get("pack"):
             if obj.get("i") == 1:
                 if cipher is None:
                     raise ValueError(
-                        "Cipher must be supplied for SCAN or BIND messages"
+                        "A SCAN vagy BIND üzenetekhez meg kell adni a rejtjelet."
                     )
                 self._cipher = cipher
 
@@ -202,7 +202,7 @@ class DeviceProtocol2(DeviceProtocolBase2):
     def add_handler(self, event_name: Response, callback):
         """Add a callback for a specific event."""
         if event_name not in Response:
-            raise ValueError(f"Invalid event name: {event_name.value}")
+            raise ValueError(f"Érvénytelen eseménynév: {event_name.value}")
 
         if event_name not in self._handlers:
             self._handlers[event_name] = []
@@ -211,7 +211,7 @@ class DeviceProtocol2(DeviceProtocolBase2):
     def remove_handler(self, event_name: Response, callback):
         """Remove a specific callback for a specific event."""
         if event_name not in Response:
-            raise ValueError(f"Invalid event name: {event_name.value}")
+            raise ValueError(f"Érvénytelen eseménynév: {event_name.value}")
 
         if event_name in self._handlers:
             self._handlers[event_name].remove(callback)
@@ -243,9 +243,9 @@ class DeviceProtocol2(DeviceProtocolBase2):
             param = params.get(resp, lambda o, a: (o, a))(obj, addr)
             handler(*param)
         except AttributeError as e:
-            _LOGGER.exception("Error while handling packet", exc_info=e)
+            _LOGGER.exception("Hiba a csomag kezelése közben", exc_info=e)
         except KeyError as e:
-            _LOGGER.exception("Error while handling packet", exc_info=e)
+            _LOGGER.exception("Hiba a csomag kezelése közben", exc_info=e)
         else:
             # Call any registered callbacks for this event
             if resp in handlers:
@@ -254,7 +254,7 @@ class DeviceProtocol2(DeviceProtocolBase2):
 
     def handle_unknown_packet(self, obj, addr: IPAddr) -> None:
         _LOGGER.warning(
-            "Received unknown packet from %s:\n%s", addr[0], json.dumps(obj)
+            "Ismeretlen csomag érkezett a következőtől: %s:\n%s", addr[0], json.dumps(obj)
         )
 
     def __handle_device_bound(self, key: str) -> None:
