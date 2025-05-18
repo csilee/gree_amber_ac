@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from .greeclimate.device import Device
+from .greeamberclimate.device import Device
 
 from homeassistant.components.switch import (
     SwitchDeviceClass,
@@ -18,13 +18,13 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import DISPATCH_DEVICE_DISCOVERED
-from .coordinator import GreeConfigEntry
-from .entity import DeviceDataUpdateCoordinator, GreeEntity
+from .coordinator import GreeAmberConfigEntry
+from .entity import DeviceDataUpdateCoordinator, GreeAmberEntity
 
 
 @dataclass(kw_only=True, frozen=True)
-class GreeSwitchEntityDescription(SwitchEntityDescription):
-    """Describes a Gree switch entity."""
+class GreeAmberSwitchEntityDescription(SwitchEntityDescription):
+    """Describes a Gree Amber switch entity."""
 
     get_value_fn: Callable[[Device], bool]
     set_value_fn: Callable[[Device, bool], None]
@@ -50,26 +50,26 @@ def _set_anion(device: Device, value: bool) -> None:
     device.anion = value
 
 
-GREE_SWITCHES: tuple[GreeSwitchEntityDescription, ...] = (
-    GreeSwitchEntityDescription(
+GREEAMBER_SWITCHES: tuple[GreeAmberSwitchEntityDescription, ...] = (
+    GreeAmberSwitchEntityDescription(
         key="Panel LED",
         translation_key="light",
         get_value_fn=lambda d: d.light,
         set_value_fn=_set_light,
     ),
-    GreeSwitchEntityDescription(
+    GreeAmberSwitchEntityDescription(
         key="Légfrissítő",
         translation_key="fresh_air",
         get_value_fn=lambda d: d.fresh_air,
         set_value_fn=_set_fresh_air,
     ),
-    GreeSwitchEntityDescription(
+    GreeAmberSwitchEntityDescription(
         key="XFan",
         translation_key="xfan",
         get_value_fn=lambda d: d.xfan,
         set_value_fn=_set_xfan,
     ),
-    GreeSwitchEntityDescription(
+    GreeAmberSwitchEntityDescription(
         key="Egészségesebb mód",
         translation_key="health_mode",
         get_value_fn=lambda d: d.anion,
@@ -81,18 +81,18 @@ GREE_SWITCHES: tuple[GreeSwitchEntityDescription, ...] = (
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: GreeConfigEntry,
+    entry: GreeAmberConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the Gree HVAC device from a config entry."""
+    """Set up the Gree Amber HVAC device from a config entry."""
 
     @callback
     def init_device(coordinator: DeviceDataUpdateCoordinator) -> None:
         """Register the device."""
 
         async_add_entities(
-            GreeSwitch(coordinator=coordinator, description=description)
-            for description in GREE_SWITCHES
+            GreeAmberSwitch(coordinator=coordinator, description=description)
+            for description in GREEAMBER_SWITCHES
         )
 
     for coordinator in entry.runtime_data.coordinators:
@@ -103,14 +103,14 @@ async def async_setup_entry(
     )
 
 
-class GreeSwitch(GreeEntity, SwitchEntity):
-    """Generic Gree switch entity."""
+class GreeAmberSwitch(GreeAmberEntity, SwitchEntity):
+    """Generic Gree Amber switch entity."""
 
     _attr_device_class = SwitchDeviceClass.SWITCH
-    entity_description: GreeSwitchEntityDescription
+    entity_description: GreeAmberSwitchEntityDescription
 
-    def __init__(self, coordinator, description: GreeSwitchEntityDescription) -> None:
-        """Initialize the Gree device."""
+    def __init__(self, coordinator, description: GreeAmberSwitchEntityDescription) -> None:
+        """Initialize the Gree Amber device."""
         self.entity_description = description
 
         super().__init__(coordinator, description.key)
