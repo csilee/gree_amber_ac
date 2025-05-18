@@ -111,7 +111,7 @@ class Discovery(BroadcastListenerProtocol, Listener, Taskable):
 
         self._device_infos.append(device_info)
 
-        _LOGGER.info("Found gree device %s", str(device_info))
+        _LOGGER.info("Gree eszköz (%s) található", str(device_info))
 
         tasks = [l.device_found(device_info) for l in self._listeners]
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -120,7 +120,7 @@ class Discovery(BroadcastListenerProtocol, Listener, Taskable):
         """Event called when a packet is received and decoded."""
         pack = obj.get("pack")
         if not pack:
-            _LOGGER.error("Received an unexpected response during discovery")
+            _LOGGER.error("Váratlan választ kapott a felfedezés során")
             return
 
         device = (
@@ -148,7 +148,7 @@ class Discovery(BroadcastListenerProtocol, Listener, Taskable):
         Returns:
             List[DeviceInfo]: List of devices found during this scan
         """
-        _LOGGER.info("Scanning for Gree devices ...")
+        _LOGGER.info("Gree eszközök keresése ...")
 
         await self.search_devices(bcast_ifaces)
         if wait_for:
