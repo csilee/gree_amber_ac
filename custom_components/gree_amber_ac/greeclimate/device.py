@@ -60,13 +60,6 @@ class Mode(IntEnum):
 
 
 @unique
-class Quiet(IntEnum):
-    Off = 0
-    Auto = 1
-    On = 2
-
-
-@unique
 class FanSpeed(IntEnum):
     Auto = 0
     Low = 1
@@ -74,6 +67,13 @@ class FanSpeed(IntEnum):
     Medium = 3
     MediumHigh = 4
     High = 5
+
+
+@unique
+class Quiet(IntEnum):
+    Off = 0
+    Auto = 1
+    On = 2
 
 
 @unique
@@ -132,38 +132,37 @@ HUMIDITY_MAX = 80
 
 
 class Device(DeviceProtocol2, Taskable):
-    """Egy fizikai eszközt, annak állapotát és tulajdonságait reprezentáló osztály.
+    """Class representing a physical device, it's state and properties.
 
-    Az eszközöket kötni kell, akár jelenlétük felderítésével, akár egy állandó eszközkulcs megadásával, 
-    amelyet aztán az egységgel való kommunikációhoz (és titkosításhoz) használnak. 
-    További részletekért lásd a `bind` függvényt.
-    
-    Miután egy eszköz kötve van, időnként meghívja az `update_state` függvényt, 
-    hogy állapotot kérjen le a HVAC-tól és frissítse azt, mivel lehetséges, 
-    hogy más forrásokból is megváltoztatja az állapotát.
-    
-    Attribútumok:
-        power: Logikai érték, amely jelzi, hogy az egység be- vagy kikapcsolt állapotban van-e.
-        mode: Egész érték, amely az üzemmódot jelzi, a lehetséges értékeket lásd a `Mode` felsorolásban.
-        target_temperature: A célhőmérséklet, figyelmen kívül hagyandó, ha Auto, Fan vagy Steady Heat módban van.
-        temperature_units: Egész érték, amely a mértékegységet jelzi, a lehetséges értékeket lásd a `TemperatureUnits` felsorolásban.
-        current_temperature: Az aktuális hőmérséklet.
-        fan_speed: Egész érték, amely a ventilátor sebességét jelzi, a lehetséges értékeket lásd a `FanSpeed` felsorolásban.
-        fresh_air: Logikai érték, amely jelzi, hogy a frisslevegő-szelep nyitva van-e, ha van ilyen.
-        xfan: Logikai érték, amely engedélyezi a ventilátor számára a tekercs szárítását, csak hűtési és szárítási módokban használatos.
-        anion: Logikai érték az ózongenerátor engedélyezéséhez, ha van ilyen.
-        sleep: Logikai érték az alvó üzemmód engedélyezéséhez, amely idővel állítja a hőmérsékletet.
-        light: Logikai érték az egység világításának engedélyezéséhez, ha van ilyen.
-        horizontal_swing: Egész érték, amely a vízszintes lamellák helyzetét szabályozza, a lehetséges értékeket lásd a `HorizontalSwing` felsorolásban.
-        vertical_swing: Egész érték A függőleges lapát pozíciójának szabályozásához lásd a `VerticalSwing` felsorolást a lehetséges értékekért.
-        quiet: Egész érték a csendes fokozatot jelzi, a lehetséges értékeket lásd a `Quiet` felsorolásban.
-        turbo: Logikai érték a turbó működés engedélyezéséhez (kezdetben gyorsabb fűtés vagy hűtés).
-        steady_heat: Engedélyezés esetén az egység 8 Celsius fokon tartja a célhőmérsékletet.
-        power_save: Logikai érték az energiatakarékos működés engedélyezéséhez.
-        target_humidity: Egész érték a cél relatív páratartalom beállításához.
-        current_humidity: Az aktuális relatív páratartalom.
-        clean_filter: Logikai érték a szűrő tisztításának szükségességére vonatkozóan.
-        water_full: Logikai érték a víztartály telítettségére vonatkozóan.
+    Devices must be bound, either by discovering their presence, or supplying a persistent
+    device key which is then used for communication (and encryption) with the unit. See the
+    `bind` function for more details on how to do this.
+
+    Once a device is bound occasionally call `update_state` to request and update state from
+    the HVAC, as it is possible that it changes state from other sources.
+
+    Attributes:
+        power: A boolean indicating if the unit is on or off
+        mode: An int indicating operating mode, see `Mode` enum for possible values
+        target_temperature: The target temperature, ignore if in Auto, Fan or Steady Heat mode
+        temperature_units: An int indicating unit of measurement, see `TemperatureUnits` enum for possible values
+        current_temperature: The current temperature
+        fan_speed: An int indicating fan speed, see `FanSpeed` enum for possible values
+        fresh_air: A boolean indicating if fresh air valve is open, if present
+        xfan: A boolean to enable the fan to dry the coil, only used for cool and dry modes
+        anion: A boolean to enable the ozone generator, if present
+        sleep: A boolean to enable sleep mode, which adjusts temperature over time
+        light: A boolean to enable the light on the unit, if present
+        horizontal_swing: An int to control the horizontal blade position, see `HorizontalSwing` enum for possible values
+        vertical_swing: An int to control the vertical blade position, see `VerticalSwing` enum for possible values
+        quiet: A boolean to enable quiet operation
+        turbo: A boolean to enable turbo operation (heat or cool faster initially)
+        steady_heat: When enabled unit will maintain a target temperature of 8 degrees C
+        power_save: A boolen to enable power save operation
+        target_humidity: An int to set the target relative humidity
+        current_humidity: The current relative humidity
+        clean_filter: A bool to indicate the filter needs cleaning
+        water_full: A bool to indicate the water tank is full
     """
 
     def __init__(
@@ -223,7 +222,7 @@ class Device(DeviceProtocol2, Taskable):
 
         if key:
             if not cipher:
-                raise ValueError("a kulcs megadásakor meg kell adni a rejtjelet")
+                raise ValueError("cipher must be provided when key is provided")
             else:
                 cipher.key = key
                 self.device_cipher = cipher
@@ -237,7 +236,7 @@ class Device(DeviceProtocol2, Taskable):
                 lambda: self, remote_addr=(self.device_info.ip, self.device_info.port)
             )
 
-        self._logger.info("Eszközkötés indítása ehhez: %s", str(self.device_info))
+        self._logger.info("Starting device binding to %s", str(self.device_info))
 
         try:
             if cipher is not None:
@@ -245,10 +244,10 @@ class Device(DeviceProtocol2, Taskable):
             else:
                 """ Try binding with CipherV1 first, if that fails try CipherV2"""
                 try:
-                    self._logger.info("Eszközhöz való csatlakozási kísérlet CipherV1 használatával")
+                    self._logger.info("Attempting to bind to device using CipherV1")
                     await self.__bind_internal(CipherV1())
                 except asyncio.TimeoutError:
-                    self._logger.info("Eszközhöz való csatlakozási kísérlet CipherV2 használatával")
+                    self._logger.info("Attempting to bind to device using CipherV2")
                     await self.__bind_internal(CipherV2())
 
         except asyncio.TimeoutError:
@@ -257,7 +256,7 @@ class Device(DeviceProtocol2, Taskable):
         if not self.device_cipher:
             raise DeviceNotBoundError
         else:
-            self._logger.info("Eszközhöz kötve a(z) %s kulcs használatával", self.device_cipher.key)
+            self._logger.info("Bound to device using key %s", self.device_cipher.key)
 
     async def __bind_internal(self, cipher: Union[CipherV1, CipherV2]):
         """Internal binding procedure, do not call directly"""
@@ -289,7 +288,7 @@ class Device(DeviceProtocol2, Taskable):
         if not self.device_cipher:
             await self.bind()
 
-        self._logger.debug("Eszköztulajdonságok frissítése ehhez: (%s)", str(self.device_info))
+        self._logger.debug("Updating device properties for (%s)", str(self.device_info))
 
         props = [x.value for x in Props]
         if not self.hid:
@@ -309,20 +308,20 @@ class Device(DeviceProtocol2, Taskable):
             self.hid = kwargs.pop("hid")
             match = re.search(r"(?<=V)([\d.]+)\.bin$", self.hid)
             self.version = match and match.group(1)
-            self._logger.info(f"Az eszköz verziója {self.version}, a rejtett {self.hid}")
+            self._logger.info(f"Device version is {self.version}, hid {self.hid}")
 
         self._properties.update(kwargs)
 
         if self.check_version and Props.TEMP_SENSOR.value in kwargs:
             self.check_version = False
             temp = self.get_property(Props.TEMP_SENSOR)
-            self._logger.debug(f"Hőmérsékleti eltolás ellenőrzése, jelentett hőmérséklet: {temp}")
+            self._logger.debug(f"Checking for temperature offset, reported temp {temp}")
             if temp and temp < TEMP_OFFSET:
                 self.version = "4.0"
                 self._logger.info(
-                    f"Az eszköz verziója {self.version}-ra változott, a {self.hid} el van rejtve."
+                    f"Device version changed to {self.version}, hid {self.hid}"
                 )
-            self._logger.debug(f"Az eszköz hőmérsékletének {self.current_temperature} használata")
+            self._logger.debug(f"Using device temperature {self.current_temperature}")
 
     async def push_state_update(self, wait_for: float = 30):
         """Push any pending state updates to the unit
@@ -336,12 +335,12 @@ class Device(DeviceProtocol2, Taskable):
         if not self.device_cipher:
             await self.bind()
 
-        self._logger.debug("Állapotfrissítések küldése ide: (%s)", str(self.device_info))
+        self._logger.debug("Pushing state updates to (%s)", str(self.device_info))
 
         props = {}
         for name in self._dirty:
             value = self._properties.get(name)
-            self._logger.debug("Távoli állapotfrissítés küldése %s -> %s", name, value)
+            self._logger.debug("Sending remote state update %s -> %s", name, value)
             props[name] = value
             if name == Props.TEMP_SET.value:
                 props[Props.TEMP_BIT.value] = self._properties.get(Props.TEMP_BIT.value)
@@ -350,7 +349,7 @@ class Device(DeviceProtocol2, Taskable):
                 )
 
         if not self._beep:
-            self._logger.debug("Csipogó letiltása")
+            self._logger.debug("Disable nuzzer")
             props["Buzzer_ON_OFF"] = 1
 
         self._dirty.clear()
@@ -409,30 +408,13 @@ class Device(DeviceProtocol2, Taskable):
     @mode.setter
     def mode(self, value: int):
         self.set_property(Props.MODE, int(value))
-        
-    @property
-    def quiet(self) -> int:
-        return self.get_property(Props.QUIET)
 
-    @quiet.setter
-    def quiet(self, value: int):
-        self.set_property(Props.QUIET, int(value))
-        
-""" eredeti kódrészlet       
-    @property
-    def quiet(self) -> bool:
-        return self.get_property(Props.QUIET)
-
-    @quiet.setter
-    def quiet(self, value: bool):
-        self.set_property(Props.QUIET, 2 if value else 0)
-"""
     def _convert_to_units(self, value, bit):
         if self.temperature_units != TemperatureUnits.F.value:
             return value
 
         if value < TEMP_MIN_TABLE or value > TEMP_MAX_TABLE:
-            raise ValueError(f"A megadott hőmérséklet ({value}) kívül esik a tartományon.")
+            raise ValueError(f"Specified temperature {value} is out of range.")
 
         matching_temset = [t for t in TEMP_TABLE if t["temSet"] == value]
 
@@ -453,7 +435,7 @@ class Device(DeviceProtocol2, Taskable):
     def target_temperature(self, value: int):
         def validate(val):
             if val > TEMP_MAX or val < TEMP_MIN:
-                raise ValueError(f"A megadott hőmérséklet ({val}) kívül esik a tartományon.")
+                raise ValueError(f"Specified temperature {val} is out of range.")
 
         if self.temperature_units == 1:
             rec = generate_temperature_record(value)
@@ -484,7 +466,7 @@ class Device(DeviceProtocol2, Taskable):
                 elif prop != 0:
                     return self._convert_to_units(prop - TEMP_OFFSET, bit)
             except ValueError:
-                logging.warning("Váratlan beállított hőmérsékleti érték (%s) konvertálása", prop)
+                logging.warning("Converting unexpected set temperature value %s", prop)
 
         return self.target_temperature
 
@@ -495,6 +477,14 @@ class Device(DeviceProtocol2, Taskable):
     @fan_speed.setter
     def fan_speed(self, value: int):
         self.set_property(Props.FAN_SPEED, int(value))
+
+    @property
+    def quiet(self) -> int:
+        return self.get_property(Props.QUIET)
+
+    @quiet.setter
+    def quiet(self, value: bool):
+        self.set_property(Props.QUIET, int(value))
 
     @property
     def fresh_air(self) -> bool:
@@ -585,7 +575,7 @@ class Device(DeviceProtocol2, Taskable):
     def target_humidity(self, value: int):
         def validate(val):
             if value > HUMIDITY_MAX or val < HUMIDITY_MIN:
-                raise ValueError(f"A megadott hőmérséklet ({val}) kívül esik a tartományon.")
+                raise ValueError(f"Specified temperature {val} is out of range.")
 
         self.set_property(Props.HUM_SET, (value - 15) // 5)
 

@@ -1,4 +1,4 @@
-"""Helper and wrapper classes for Gree Amber module."""
+"""Helper and wrapper classes for Gree module."""
 
 from __future__ import annotations
 
@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 import logging
 from typing import Any
 
-from .greeamberclimate.device import Device, DeviceInfo
-from .greeamberclimate.discovery import Discovery, Listener
-from .greeamberclimate.exceptions import DeviceNotBoundError, DeviceTimeoutError
-from .greeamberclimate.network import Response
+from .greeclimate.device import Device, DeviceInfo
+from .greeclimate.discovery import Discovery, Listener
+from .greeclimate.exceptions import DeviceNotBoundError, DeviceTimeoutError
+from .greeclimate.network import Response
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -31,12 +31,12 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-type GreeAmberConfigEntry = ConfigEntry[GreeAmberRuntimeData]
+type GreeConfigEntry = ConfigEntry[GreeRuntimeData]
 
 
 @dataclass
-class GreeAmberRuntimeData:
-    """RUntime data for Gree Amber Climate integration."""
+class GreeRuntimeData:
+    """RUntime data for Gree Climate integration."""
 
     discovery_service: DiscoveryService
     coordinators: list[DeviceDataUpdateCoordinator]
@@ -45,10 +45,10 @@ class GreeAmberRuntimeData:
 class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Manages polling for state changes from the device."""
 
-    config_entry: GreeAmberConfigEntry
+    config_entry: GreeConfigEntry
 
     def __init__(
-        self, hass: HomeAssistant, config_entry: GreeAmberConfigEntry, device: Device
+        self, hass: HomeAssistant, config_entry: GreeConfigEntry, device: Device
     ) -> None:
         """Initialize the data update coordinator."""
         super().__init__(
@@ -60,16 +60,16 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             always_update=False,
         )
         self.device = device
-        print(f"Eszköz kezelőhöz adva: {self.device}")
+        print(f"Device add handler: {self.device}")
         self.device.add_handler(Response.RESULT, self.device_state_updated)
-        print(f"Eszköz kezelőhöz adva: {self.device}")
+        print(f"Device add handler: {self.device}")
 
         self._error_count: int = 0
         self._last_response_time: datetime = utcnow()
         self._last_error_time: datetime | None = None
 
         _LOGGER.debug(
-            "Gree Amber eszköz: %s ekkor %s:%i beállítva",
+            "Gree device %s at %s:%i initialized",
             self.device.device_info.name,
             self.device.device_info.ip,
             self.device.device_info.port,
@@ -77,7 +77,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def device_state_updated(self, *args: Any) -> None:
         """Handle device state updates."""
-        _LOGGER.debug("Eszköz státusza megváltozott: %s", json_dumps(args))
+        _LOGGER.debug("Device state updated: %s", json_dumps(args))
         self._error_count = 0
         self._last_response_time = utcnow()
         self.async_set_updated_data(self.device.raw_properties)
@@ -85,24 +85,24 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_data(self) -> dict[str, Any]:
         """Update the state of the device."""
         _LOGGER.debug(
-            "Eszköz státusza frissítve: %s, hibaszámláló: %d", self.name, self._error_count
+            "Updating device state: %s, error count: %d", self.name, self._error_count
         )
         try:
             await self.device.update_state()
         except DeviceNotBoundError as error:
             raise UpdateFailed(
-                f"{self.name} eszköz elérhetettlen, az eszköz nincs jelen."
+                f"Device {self.name} is unavailable, device is not bound."
             ) from error
         except DeviceTimeoutError as error:
             self._error_count += 1
 
-            # Under normal conditions GREE AMBER units timeout every once in a while
+            # Under normal conditions GREE units timeout every once in a while
             if self.last_update_success and self._error_count >= MAX_ERRORS:
                 _LOGGER.warning(
-                    "Eszköz %s elérhetettlen: %s", self.name, self.device.device_info
+                    "Device %s is unavailable: %s", self.name, self.device.device_info
                 )
                 raise UpdateFailed(
-                    f"{self.name} eszköz elérhetettlen, nem sikerült elküldeni a frissítési kérelmet"
+                    f"Device {self.name} is unavailable, could not send update request"
                 ) from error
         else:
             # raise update failed if time for more than MAX_ERRORS has passed since last update
@@ -118,7 +118,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     self._error_count += 1
 
                 _LOGGER.warning(
-                    "A(z) %s eszköz szokatlanul sokáig várt a válaszadásra, %s másodperc",
+                    "Device %s took an unusually long time to respond, %s seconds",
                     self.name,
                     elapsed_success,
                 )
@@ -126,7 +126,7 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 self._error_count = 0
             if self.last_update_success and self._error_count >= MAX_ERRORS:
                 raise UpdateFailed(
-                    f"A(z) {self.name} eszköz túl sokáig nem válaszol, és most nem érhető el."
+                    f"Device {self.name} is unresponsive for too long and now unavailable"
                 )
 
         self._last_response_time = utcnow()
@@ -138,16 +138,16 @@ class DeviceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return await self.device.push_state_update()
         except DeviceTimeoutError:
             _LOGGER.warning(
-                "Időtúllépés az állapotfrissítés küldésekor ide: %s (%s)",
+                "Timeout send state update to: %s (%s)",
                 self.name,
                 self.device.device_info,
             )
 
 
 class DiscoveryService(Listener):
-    """Discovery event handler for gree amber devices."""
+    """Discovery event handler for gree devices."""
 
-    def __init__(self, hass: HomeAssistant, entry: GreeAmberConfigEntry) -> None:
+    def __init__(self, hass: HomeAssistant, entry: GreeConfigEntry) -> None:
         """Initialize discovery service."""
         super().__init__()
         self.hass = hass
@@ -163,23 +163,23 @@ class DiscoveryService(Listener):
         try:
             await device.bind()
         except DeviceNotBoundError:
-            _LOGGER.error("Nem sikerült csatlakozni a Gree Amber eszközhöz: %s", device_info)
+            _LOGGER.error("Unable to bind to gree device: %s", device_info)
         except DeviceTimeoutError:
-            _LOGGER.error("Időtúllépés a Gree Amber eszközhöz való csatlakozás során: %s", device_info)
+            _LOGGER.error("Timeout trying to bind to gree device: %s", device_info)
 
         _LOGGER.debug(
-            "Gree Amber eszköz hozzáadása %s ekkor %s:%i",
+            "Adding Gree device %s at %s:%i",
             device.device_info.name,
             device.device_info.ip,
             device.device_info.port,
         )
         print(
-            f"Gree Amber eszköz hozzáadása {device.device_info.name} ekkor {device.device_info.ip}:{device.device_info.port}"
+            f"Adding Gree device {device.device_info.name} at {device.device_info.ip}:{device.device_info.port}"
         )
         coordo = DeviceDataUpdateCoordinator(self.hass, self.entry, device)
-        print(f"Feldolgozó eszköz: {device}")
+        print(f"Processing device: {device}")
         self.entry.runtime_data.coordinators.append(coordo)
-        print(f"Koordinátorok: {self.entry.runtime_data.coordinators}")
+        print(f"Coordinators: {self.entry.runtime_data.coordinators}")
         await coordo.async_refresh()
 
         async_dispatcher_send(self.hass, DISPATCH_DEVICE_DISCOVERED, coordo)

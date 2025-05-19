@@ -1,25 +1,28 @@
 {
     "config": {
         "abort": {
-            "no_devices_found": "Nem található eszköz a hálózaton",
-            "single_instance_allowed": "Már konfigurálva. Csak egyetlen konfiguráció lehetséges."
+            "no_devices_found": "No devices found on the network",
+            "single_instance_allowed": "Already configured. Only a single configuration possible."
         },
         "step": {
             "confirm": {
-                "description": "Szeretnéd elkezdeni a beállítást?"
+                "description": "Do you want to start setup?"
             }
         }
     },
     "entity": {
         "switch": {
             "fresh_air": {
-                "name": "Légfrissítő"
+                "name": "Fresh air"
             },
             "health_mode": {
-                "name": "Egészségesebb mód"
+                "name": "Health mode"
             },
             "light": {
-                "name": "Panel lED"
+                "name": "Panel light"
+            },
+            "quiet": {
+                "name": "Quiet mode"
             },
             "xfan": {
                 "name": "Xtra fan"

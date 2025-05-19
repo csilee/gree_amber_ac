@@ -1,65 +1,59 @@
-# Gree Amber AC egyedi komponens a Home Assistant-hoz
-Felelősség kizárása
-Mivel lusta vagyok, ez a README.md főként ChatGPT segítségével készült.
-Ez az integráció lényegében az eredeti, hivatalos Gree integráció módosított változata, amely letiltja a légkondicionáló egység hangos visszajelző sípolásait, köszönhetően a greeclimate könyvtár egy javított verziójának, amelyet @namezys készített.
+# Gree AC Custom Component for Home Assistant
+Disclaimer: because I'm lazy, this README.md was mostly generated with ChatGPT.
 
-Jellemzők
-Közvetlenül irányíthatod Gree Amber légkondicionálóidat a Home Assistantból.
-Élvezd a csendesebb működést a sípolások kikapcsolásával.
-Egyszerű telepítés a HACS segítségével.
+This integration is basically the official Gree integration modified to disable the audible feedback beeps from the air conditioner unit, thanks to a patched [greeclimate](https://github.com/namezys/greeclimate/tree/beep_disable) library from [@namezys](https://github.com/namezys).
 
-Különbségek a hivatalos integrációhoz képest
-Ez a saját integráció funkcióiban alapvetően megegyezik a Home Assistant által biztosított hivatalos Gree integrációval. Azonban tartalmaz egy javított greeclimate könyvtárat, amely letiltja az egység sípolásait, így nyugodtabb környezetet biztosít.
+## Features
 
-Telepítési útmutató
-A Gree Amber AC egyedi komponens könnyen telepíthető a Home Assistant Community Store (HACS) segítségével:
+- Control your Gree AC units directly from Home Assistant.
+- Enjoy a quieter experience with the beeps disabled.
+- Simple installation process with HACS.
 
-Előfeltételek
-Mielőtt elkezdenéd, győződj meg róla, hogy:
-A Home Assistant telepítve és fut.
-A HACS (Home Assistant Community Store) telepítve van.
+## Differences from Official Integration
 
-Telepítési lépések
-Nyisd meg a HACS-t a Home Assistantban:
+The functionality of this custom integration is essentially the same as the official Gree integration provided by Home Assistant. However, it includes a patched version of the `greeclimate` library, which disables the beeps from the unit, providing a more serene environment.
 
-Navigálj a HACS menüponthoz a Home Assistant irányítópultján.
+## Installation Instructions
 
-Add hozzá az egyedi tárolót:
+You can easily install the Gree AC Custom Component using the Home Assistant Community Store (HACS):
 
-Kattints az "Integrációk" fülre.
+### Prerequisites
 
-Kattints a jobb felső sarokban lévő három pontra, majd válaszd a "Custom Repositories" (Egyedi tárolók) menüpontot.
+Before you start, ensure you have the following prerequisites:
 
-A "Repository" mezőbe írd be a következő URL-t: https://github.com/csilee/gree_amber_ac.
+- Home Assistant installed and running.
+- HACS (Home Assistant Community Store) installed.
 
-A "Category" legördülő menüből válaszd az "Integration" kategóriát.
+### Installation Steps
 
-Kattints az "Add" (Hozzáadás) gombra.
+1. **Open HACS in Home Assistant:**
+   - Navigate to the HACS section in your Home Assistant dashboard.
 
-Telepítsd az integrációt:
+2. **Add the Custom Repository:**
+   - Click on the "Integrations" tab.
+   - Click on the three-dot menu in the upper right corner and select "Custom Repositories."
+   - In the "Repository" field, enter the URL: `https://github.com/ov1d1u/gree_ac`.
+   - In the "Repository" field, enter the URL: `https://github.com/csilee/gree_amber_ac`.
+   - In the "Category" dropdown, select "Integration."
+   - Click the "Add" button.
 
-A HACS integrációk keresőjében keresd meg a "Gree AmberAC" kifejezést.
+3. **Install the Integration:**
+   - Search for "Gree AC" in the HACS integrations search bar.
+   - Click on "Gree AC" from the search results.
+   - Click the "Install" button.
 
-Kattints a találatok között a "Gree Amber AC"-re.
+4. **Restart Home Assistant:**
+   - After installation, restart Home Assistant to load the new custom component.
 
-Kattints a "Install" (Telepítés) gombra.
+5. **Configure the Integration:**
+   - Once Home Assistant has restarted, navigate to "Configuration" > "Devices & Services."
+   - Click "Add Integration" and search for "Gree AC."
+   - Follow the configuration instructions to set up your Gree AC units.
 
-Indítsd újra a Home Assistantot:
+## Acknowledgements
 
-A telepítés után indítsd újra a Home Assistantot, hogy betöltse az új egyedi komponenst.
-
-Konfiguráld az integrációt:
-
-Az újraindítás után menj a "Configuration" > "Devices & Services" menüpontra.
-
-Kattints az "Add Integration" (Integráció hozzáadása) gombra, majd keresd meg a "Gree Amber AC"-t.
-
-Kövesd a konfigurációs lépéseket, hogy beállítsd a Gree Amber légkondicionálóidat.
-
-Köszönetnyilvánítás
-Ez az egyedi komponens tartalmazza a greeclimate könyvtár javított verzióját, amelyet @namezys készített, és amely letiltja a légkondicionáló sípolásait.
-
-Az eredeti Gree integrációnak a Home Assistant számára.
+- This custom component incorporates the [greeclimate](https://github.com/namezys/greeclimate/tree/beep_disable) library patched by [@namezys](https://github.com/namezys) to disable the beeps from the AC unit.
+- Original Gree integration for Home Assistant.
 
 ## Support
 

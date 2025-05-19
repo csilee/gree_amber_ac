@@ -23,7 +23,7 @@ class Taskable:
 
     def _task_done_callback(self, task):
         if task.exception():
-            _LOGGER.exception("Nem észlelt kivétel", exc_info=task.exception())
+            _LOGGER.exception("Uncaught exception", exc_info=task.exception())
         self._tasks.remove(task)
 
     def _create_task(self, coro) -> Task:
